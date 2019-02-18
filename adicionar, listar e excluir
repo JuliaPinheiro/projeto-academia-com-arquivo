@@ -1,0 +1,136 @@
+program arquivoII;
+
+uses
+  crt,SysUtils;
+
+type
+
+  TProduto = record
+    indice,codigo: integer;
+    Nome: string[30];
+    valor: real;
+  end;
+
+
+var
+  Produto: TProduto;
+  Arquivo: file of TProduto;
+  Arquivo2: file of Tproduto;
+ opcao: integer;
+  vcod: integer;
+begin
+  Produto.indice:=0;
+  Assign(Arquivo, 'dados.bin');
+  Assign(Arquivo2, 'dados2.bin');
+  {$i-}//Desabilita a checagem de erros de E/S (Entrada e Saída)
+  Reset(Arquivo); //Tenta abrir o arquivo
+  {$i+}//Habilita a checagem de erros de E/S
+  if (IOResult > 0) then //Se houve algum erro de ES
+  begin
+    Rewrite(Arquivo);
+  end;
+  close(Arquivo);
+  Rewrite(Arquivo2);
+  Rewrite(Arquivo);
+  repeat
+
+    clrscr;
+    writeln('|-----------|');
+    writeln('|   MENU    |');
+    writeln('|-----------|');
+    writeln('|1-Incluir  |');
+    writeln('|2-Listar   |');
+    writeln('|3-Excluir  |');
+    writeln('|4-Alterar  |');
+    writeln('|5-Backup   |');
+    writeln('|6-Restaurar|');
+    writeln('|7-Ordenar  |');
+    writeln('|8-Buscar   |');
+    writeln('|0-Sair     |');
+    writeln('|-----------|');
+      readln(opcao);
+
+
+    // adicionar
+
+    if (opcao = 1) then
+    begin
+
+
+      Writeln('--------------');
+      Writeln('CODIGO:       ');
+      readln(Produto.codigo   );
+      Writeln('NOME:         ');
+      readln(Produto.Nome);
+      Writeln('VALOR: '       );
+      readln(Produto.valor);
+      Writeln('--------------');
+
+      Produto.indice:=Produto.indice+1;
+
+      reset(Arquivo);  //Abrir arquivo
+      Seek(Arquivo, Filesize(Arquivo)); //Caminhar até o fim
+      Write(Arquivo, Produto); //escrever os dados no arquivo
+      CloseFile(Arquivo); //fechar arquivo
+    end;
+
+
+
+    // listar
+
+    if (opcao = 2) then
+    begin
+      reset(Arquivo);  //abrir arquivo  inicio do arquivo
+      //enquanto não for fim de arquivo
+      // End Of File EOF
+      while not (EOF(Arquivo)) do
+      begin
+        Read(Arquivo, Produto); //leitura dos dados
+
+        writeln('------------------------------');
+        Writeln('CODIGO :', Produto.codigo);
+        Writeln('NOME   :', Produto.Nome);
+        Writeln('VALOR  :', Produto.valor: 8: 2);
+        writeln('------------------------------');
+      end;
+
+      CloseFile(Arquivo);
+      readkey;
+    end;
+
+    // excluir
+
+
+    if (opcao = 3) then
+    begin
+      writeln('Informe  o codigo que deseja excluir: ');
+      Readln(vcod);
+      reset(arquivo);
+      seek (arquivo,0);
+     {$i-} Rewrite(arquivo2);{$i+}
+      while EOF(Arquivo)=false do
+      begin
+        Read(Arquivo, Produto); //leitura dos dados
+        if (vcod <> Produto.indice) then
+        begin
+          Write(arquivo2, Produto); //escrever os dados no arquivo
+        end;
+      end;
+        Close(arquivo);
+        Close(arquivo2);
+        DeleteFile('dados.bin');
+        RenameFile('dados2.bin', 'dados.bin');
+        ReadKey;
+    end;
+
+    // alterar
+
+    if (opc = 4) then
+    begin
+
+    end;
+
+
+
+  until opcao = 0;
+end.        
