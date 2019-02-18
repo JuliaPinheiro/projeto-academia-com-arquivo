@@ -1,0 +1,122 @@
+program versao_um_ponto_zero;
+
+uses
+  crt,
+  SysUtils;
+
+type
+
+  Taluno = record
+
+    nome: string [30];
+    codigo, telefone: integer;
+    altura, peso: real;
+    endereco: string [50];
+    objetivo: string [20];
+
+  end;
+
+  procedure menu;
+  begin
+    textcolor(14);
+    writeln('------------------------------------------------------');
+    writeln('|                        MENU                        |');
+    writeln('------------------------------------------------------');
+    writeln('|              1 - Adicionar aluno                   |');
+    writeln('|              2 - Listar Alunos                     |');
+    writeln('|              0 - Sair                              |');
+    writeln('------------------------------------------------------');
+  end;
+
+var
+  opc: integer;
+  aluno: Taluno;
+  arquivo: file of Taluno;
+  arquivo2: file of Taluno;
+begin
+
+  Assign(Arquivo, 'dados.bin');
+  Assign(Arquivo2, 'dados2.bin');
+  {$i-}
+  Reset(Arquivo);
+  {$i+}
+  if (IOResult > 0) then
+  begin
+    Rewrite(Arquivo);
+  end;
+  Close(Arquivo);
+  Rewrite(Arquivo2);
+  Rewrite(Arquivo);
+
+
+  repeat
+
+
+    menu();
+    readln(opc);
+
+    // ADICIONAR ALUNO
+
+    if (opc = 1) then
+    begin
+
+      writeln('Nome:    ');
+      readln(aluno.Nome);
+      writeln('----------');
+      writeln('Codigo:  ');
+      readln(aluno.codigo);
+      writeln('----------');
+      writeln('Telefone:  ');
+      readln(aluno.telefone);
+      writeln('----------');
+      writeln('Endereço:  ');
+      readln(aluno.endereco);
+      writeln('----------');
+      writeln('Altura:  ');
+      readln(aluno.altura);
+      writeln('----------');
+      writeln('Peso:  ');
+      readln(aluno.peso);
+      writeln('----------');
+      writeln('Objetivo:  ');
+      readln(aluno.objetivo);
+      writeln('----------');
+
+      reset(Arquivo);
+      Seek(Arquivo, Filesize(Arquivo));
+      Write(Arquivo, aluno);
+      CloseFile(Arquivo);
+    end;
+
+
+    //LISTAR ALUNOS
+
+    if (opc = 2) then
+
+     reset(Arquivo);
+
+    while not (EOF(Arquivo)) do
+      begin
+
+        Read(Arquivo, aluno);
+        writeln('------------------------------');
+        Writeln('Codigo :', aluno.codigo);
+        Writeln('Nome   :', aluno.nome);
+        Writeln('Telefone  :', aluno.telefone);
+        Writeln('Endereco  :', aluno.endereco);
+        Writeln('Altura :', aluno.altura:8:2);
+        Writeln('Peso  :', aluno.peso:8:2);
+        Writeln('Objetivo :', aluno.objetivo);
+        writeln('------------------------------');
+      end;
+
+      CloseFile(Arquivo);
+      readkey;
+
+
+
+  until opc = 0;
+
+  readkey;
+end.
+     
