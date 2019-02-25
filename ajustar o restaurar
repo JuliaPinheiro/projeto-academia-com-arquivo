@@ -1,0 +1,321 @@
+program versao_um_ponto_zero;
+
+uses
+  crt,
+  SysUtils;
+
+type
+
+  Taluno = record
+
+    nome: string [30];
+    codigo: integer;
+    altura, peso: real;
+    objetivo: string [20];
+
+  end;
+  Torganizar = file of Taluno;
+
+  procedure ordenar(var arquivo: Torganizar);
+  var
+    aux: array [1..50] of Taluno;
+    temp: Taluno;
+    i, j, n1, posmenor: integer;
+  begin
+    n1 := 0;
+    reset(Arquivo);
+    while (not EOF(arquivo) or (n1 > 50)) do
+    begin
+      n1 := n1 + 1;
+      Read(Arquivo, aux[n1]);
+    end;
+
+    for i := 1 to n1 do
+    begin
+      posmenor := i;
+      for j := i + 1 to n1 do
+      begin
+        if (aux[j].codigo < aux[posmenor].codigo) then
+        begin
+          posmenor := j;
+        end;
+        if (posmenor <> i) then
+        begin
+          temp := aux[i];
+          aux[i] := aux[posmenor];
+          aux[posmenor] := temp;
+        end;
+      end;
+    end;
+    rewrite(Arquivo);
+    for i := 1 to n1 do
+    begin
+      Write(Arquivo, aux[i]);
+    end;
+    Close(Arquivo);
+  end;
+
+  procedure menu;
+  begin
+    textcolor(14);
+    writeln('------------------------------------------------------');
+    writeln('|                        MENU                        |');
+    writeln('------------------------------------------------------');
+    writeln('|              1 - Adicionar aluno                   |');
+    writeln('|              2 - Listar Alunos                     |');
+    writeln('|              3 - Excluir Alunos                    |');
+    writeln('|              4 - Alterar dados                     |');
+    writeln('|              5 - Buscar dados                      |');
+    writeln('|              6 - Ordenar dados                     |');
+    writeln('|              7 - Backup de dados                   |');
+    writeln('|              8 - Restaurar de dados                |');
+    writeln('|              0 - Sair                              |');
+    writeln('------------------------------------------------------');
+  end;
+
+var
+  opc, opc2, vcod: integer;
+  aluno: Taluno;
+  arquivo: file of Taluno;
+  arquivo2: file of Taluno;
+  backup: file of Taluno;
+  restaurar: file of Taluno;
+
+begin
+
+  Assign(Arquivo, 'dados.bin');
+  Assign(Arquivo2, 'dados2.bin');
+  Assign(Backup, 'backup.bin');
+  Assign(restaurar, 'restaurar.bin');
+
+  {$i-}
+  Reset(Arquivo);
+  {$i+}
+  if (IOResult > 0) then
+  begin
+    Rewrite(Arquivo);
+  end;
+  Close(Arquivo);
+  Rewrite(Arquivo2);
+  Rewrite(Arquivo);
+
+
+  repeat
+
+    menu();
+    readln(opc);
+
+    // ADICIONAR ALUNO
+
+    if (opc = 1) then
+    begin
+
+      writeln('Nome:    ');
+      readln(aluno.Nome);
+      writeln('----------');
+      writeln('Codigo:  ');
+      readln(aluno.codigo);
+      writeln('----------');
+      writeln('Altura:  ');
+      readln(aluno.altura);
+      writeln('----------');
+      writeln('Peso:  ');
+      readln(aluno.peso);
+      writeln('----------');
+      writeln('Objetivo:  ');
+      readln(aluno.objetivo);
+      writeln('----------');
+
+      reset(Arquivo);
+      Seek(Arquivo, Filesize(Arquivo));
+      Write(Arquivo, aluno);
+      CloseFile(Arquivo);
+    end;
+
+    clrscr;
+
+    //LISTAR ALUNOS
+
+    if (opc = 2) then
+    begin
+      reset(Arquivo);
+
+      while not (EOF(Arquivo)) do
+      begin
+
+        Read(Arquivo, aluno);
+        writeln('------------------------------');
+        Writeln('Codigo :', aluno.codigo);
+        Writeln('Nome   :', aluno.nome);
+        Writeln('Altura :', aluno.altura: 8: 2);
+        Writeln('Peso  :', aluno.peso: 8: 2);
+        Writeln('Objetivo :', aluno.objetivo);
+        writeln('------------------------------');
+      end;
+      readkey;
+
+      CloseFile(Arquivo);
+      //  readkey;
+    end;
+    clrscr;
+    //EXCLUIR ALUNOS
+
+    if (opc = 3) then
+    begin
+      writeln('Informe  o codigo do aluno que deseja excluir: ');
+      Readln(vcod);
+      reset(arquivo);
+      seek(arquivo, 0);
+     {$i-}
+      Rewrite(arquivo2);
+{$i+}
+      while EOF(Arquivo) = False do
+      begin
+        Read(Arquivo, aluno);
+        if (vcod <> aluno.codigo) then
+        begin
+          Write(arquivo2, aluno);
+        end;
+      end;
+
+      Close(arquivo);
+      Close(arquivo2);
+      DeleteFile('dados.bin');
+      RenameFile('dados2.bin', 'dados.bin');
+      ReadKey;
+    end;
+
+    // ALTERAR
+
+
+    if (opc = 4) then
+    begin
+      reset(Arquivo);
+      seek(Arquivo, 0);
+      while not (EOF(arquivo)) do
+      begin
+        Read(Arquivo, aluno);
+
+      end;
+
+      textcolor(14);
+      writeln('');
+      writeln('Informe o codigo do aluno que deseja alterar: ');
+      readln(opc2);
+      reset(Arquivo);
+      seek(Arquivo, 0);
+      rewrite(arquivo2);
+
+
+      while not (EOF(Arquivo)) do
+      begin
+        Read(Arquivo, aluno);
+        if (opc2 <> aluno.codigo) then
+        begin
+          Write(Arquivo2, aluno);
+        end
+        else
+        begin
+
+          writeln('Nome:    ');
+          readln(aluno.Nome);
+          writeln('----------');
+          writeln('Codigo:  ');
+          readln(aluno.codigo);
+          writeln('----------');
+          writeln('Altura:  ');
+          readln(aluno.altura);
+          writeln('----------');
+          writeln('Peso:  ');
+          readln(aluno.peso);
+          writeln('----------');
+          writeln('Objetivo:  ');
+          readln(aluno.objetivo);
+          Write(Arquivo2, aluno);
+          writeln('----------');
+        end;
+        clrscr;
+      end;
+      Close(Arquivo);
+      Close(Arquivo2);
+      DeleteFile('dados.bin');
+      RenameFile('dados2.bin', 'dados.bin');
+
+      readkey;
+    end;
+
+    // BUSCAR
+
+    if (opc = 5) then
+    begin
+      Write('Informe o codigo que deseja buscar:');
+      readln(opc2);
+      reset(Arquivo);
+      seek(Arquivo, 0);
+      while not (EOF(Arquivo)) do
+      begin
+        Read(Arquivo, aluno);
+        if (opc2 = aluno.codigo) then
+        begin
+          Writeln('Codigos encontrados: ');
+          writeln('------------------------------');
+          Writeln('Codigo :', aluno.codigo);
+          Writeln('Nome   :', aluno.nome);
+          Writeln('Altura :', aluno.altura: 8: 2);
+          Writeln('Peso  :', aluno.peso: 8: 2);
+          Writeln('Objetivo :', aluno.objetivo);
+          writeln('------------------------------');
+
+        end;
+        clrscr;
+      end;
+      Close(Arquivo);
+      readkey;
+    end;
+
+    // ORDENAR =   6
+    if (opc = 6) then
+    begin
+      ordenar(Arquivo);
+    end;
+
+    //BACKUP
+
+    if (opc = 7) then
+    begin
+      reset(arquivo);
+      seek(arquivo, 0);
+      rewrite(backup);
+      while not (EOF(Arquivo)) do
+      begin
+        Read(Arquivo, aluno);
+        Write(backup, aluno);
+      end;
+      Close(Arquivo);
+      Close(backup);
+      readkey;
+    end;
+
+    if (opc = 8) then
+    begin
+      reset(Arquivo);
+      seek(backup, 0);
+      rewrite(restaurar);
+      while not (EOF(Arquivo)) do
+      begin
+        Read(Arquivo, aluno);
+        Read(Backup, aluno);
+        Write(restaurar, aluno);
+      end;
+      Close(Arquivo);
+      Close(Backup);
+      Close(restaurar);
+      deletefile('Dados.bin');
+      renamefile('restaurar.bin', 'dados.bin');
+    end;
+
+
+  until (opc = 0);
+
+  readkey;
+end.       
